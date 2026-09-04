@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG Evaluation Framework - 6 Core Evaluation Types</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+    
+    .dir-higher { background-color: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); }
+    .dir-lower { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.25); }
+    .dir-bool { background-color: rgba(168, 85, 247, 0.1); color: #7e22ce; border: 1px solid rgba(168, 85, 247, 0.25); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased min-h-screen p-4 sm:p-6 lg:p-8">
+
+  <div class="max-w-7xl mx-auto space-y-6">
+    
+    <!-- Top Header Banner -->
+    <header class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-3">
+          <span class="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 font-black text-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+          </span>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              RAG Evaluation & Regression Framework
+            </h1>
+            <p class="text-sm text-slate-500">
+              Standard Architecture for 6 Core Evaluation Types: Direction, Range & Target Specifications
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Stats Chips -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700">
+          🏛️ 3 Evaluation Levels
+        </div>
+        <div class="bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-indigo-700">
+          📑 6 Core Types
+        </div>
+        <div class="bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700">
+          📐 21 Total Metrics
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation & Filtering Bar -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+      <!-- View Switcher Tabs -->
+      <div class="inline-flex p-1 rounded-xl bg-slate-100 text-xs font-medium self-start">
+        <button id="tab-cards" onclick="switchView('cards')" class="px-4 py-2 rounded-lg bg-white text-indigo-600 font-bold shadow-sm transition">
+          📊 6 Evaluation Types (Cards)
+        </button>
+        <button id="tab-tree" onclick="switchView('tree')" class="px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          🌳 Architectural Tree
+        </button>
+        <button id="tab-table" onclick="switchView('table')" class="px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          📋 Complete Specification Matrix
+        </button>
+      </div>
+
+      <!-- Quick Direction Legend & Filter -->
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Filter Direction:</span>
+        <button onclick="filterDirection('all')" class="dir-btn active px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium">All</button>
+        <button onclick="filterDirection('higher')" class="dir-btn px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 font-medium">Higher ↑</button>
+        <button onclick="filterDirection('lower')" class="dir-btn px-3 py-1.5 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 font-medium">Lower ↓</button>
+        <button onclick="filterDirection('bool')" class="dir-btn px-3 py-1.5 rounded-lg border border-purple-300 bg-purple-50 text-purple-700 font-medium">Boolean</button>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 1: 6 EVALUATION TYPES (DEEP-DIVE CARDS)                      -->
+    <!-- ================================================================= -->
+    <div id="view-cards" class="view-panel space-y-6">
+      
+      <!-- LEVEL 1: COMPONENT LEVEL EVALS -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">
+            Level 1: Component Level Evaluations
+          </h2>
+          <span class="text-xs text-slate-400">• Unit testing isolated sub-modules prior to generation</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <!-- TYPE 1: RETRIEVER -->
+          <div class="type-card bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-300 transition">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <span class="p-2 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm">1</span>
+                <div>
+                  <h3 class="font-bold text-base text-slate-900">Retriever</h3>
+                  <p class="text-xs text-slate-500">Search & Chunk Retrieval Quality</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">2 Metrics</span>
+            </div>
+
+            <div class="space-y-3">
+              <!-- Metric 1 -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">retriever.contextual_recall.avg_score</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Ratio of ground-truth relevant facts captured in retrieved chunks.</div>
+                  </div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
+                  <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
+                </div>
+              </div>
+
+              <!-- Metric 2 -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">retriever.contextual_precision.avg_score</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Rank ordering accuracy; whether relevant chunks are placed at top k.</div>
+                  </div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
+                  <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TYPE 2: GENERATOR -->
+          <div class="type-card bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-300 transition">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <span class="p-2 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm">2</span>
+                <div>
+                  <h3 class="font-bold text-base text-slate-900">Generator</h3>
+                  <p class="text-xs text-slate-500">LLM Synthesis & Reasoning Accuracy</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">2 Metrics</span>
+            </div>
+
+            <div class="space-y-3">
+              <!-- Metric 1 -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">generator.faithfulness.avg_score</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Hallucination check: facts asserted are grounded in retrieved context.</div>
+                  </div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
+                  <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
+                </div>
+              </div>
+
+              <!-- Metric 2 -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">generator.answer_relevancy.avg_score</div>
+                    <div class="text-[11px] text-slate-500 mt-0.5">Conciseness and relevance of generated text to the user prompt.</div>
+                  </div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
+                  <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- LEVEL 2: PIPELINE LEVEL EVALS -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">
+            Level 2: Pipeline Level Evaluations
+          </h2>
+          <span class="text-xs text-slate-400">• Evaluating tripartite information flow (Query ↔ Context ↔ Response)</span>
+        </div>
+
+        <!-- TYPE 3: RAG TRIAD -->
+        <div class="type-card bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-300 transition">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2.5">
+              <span class="p-2 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm">3</span>
+              <div>
+                <h3 class="font-bold text-base text-slate-900">RAG Triad</h3>
+                <p class="text-xs text-slate-500">Holistic Pipeline Coupling: Context Relevancy, Groundedness, Answer Relevancy</p>
+              </div>
+            </div>
+            <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">3 Metrics</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Triad 1 -->
+            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2" data-dir="higher">
+              <div class="flex justify-between items-start">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 1</span>
+                <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+              </div>
+              <div class="font-mono text-xs font-bold text-slate-900">pipeline.contextual_relevancy.avg_score</div>
+              <p class="text-[11px] text-slate-500">Signal-to-noise ratio: fraction of retrieved context relevant to user query.</p>
+              <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
+                <span class="text-slate-500">Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                <span class="text-emerald-700 font-semibold">Target: High</span>
+              </div>
+            </div>
+
+            <!-- Triad 2 -->
+            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2" data-dir="higher">
+              <div class="flex justify-between items-start">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 2</span>
+                <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+              </div>
+              <div class="font-mono text-xs font-bold text-slate-900">pipeline.faithfulness.avg_score</div>
+              <p class="text-[11px] text-slate-500">Groundedness: statements in the generated response verified by the retrieved context.</p>
+              <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
+                <span class="text-slate-500">Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                <span class="text-emerald-700 font-semibold">Target: High</span>
+              </div>
+            </div>
+
+            <!-- Triad 3 -->
+            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2" data-dir="higher">
+              <div class="flex justify-between items-start">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 3</span>
+                <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+              </div>
+              <div class="font-mono text-xs font-bold text-slate-900">pipeline.answer_relevancy.avg_score</div>
+              <p class="text-[11px] text-slate-500">Response fidelity: degree to which the answer resolves original user question.</p>
+              <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
+                <span class="text-slate-500">Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                <span class="text-emerald-700 font-semibold">Target: High</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEVEL 3: APPLICATION LEVEL EVALS -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-700">
+            Level 3: Application Level Evaluations
+          </h2>
+          <span class="text-xs text-slate-400">• End-user quality, defensive safety boundaries, and live SLA performance</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+          <!-- TYPE 4: APPLICATION QUALITY -->
+          <div class="type-card bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-300 transition">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <span class="p-2 rounded-xl bg-purple-50 text-purple-600 font-bold text-sm">4</span>
+                <div>
+                  <h3 class="font-bold text-base text-slate-900">Application Quality</h3>
+                  <p class="text-xs text-slate-500">G-Eval (LLM-as-a-Judge) Metrics</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">3 Metrics</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">application.correctness_[geval]</div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Factual and semantic correctness of final response.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: High</span>
+                </div>
+              </div>
+
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">application.completeness_[geval]</div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Completeness in addressing all facets of user prompt.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: High</span>
+                </div>
+              </div>
+
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">application.style_[geval]</div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Readability, tone, clarity, and Markdown structure.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: High</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TYPE 5: SAFETY -->
+          <div class="type-card bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-300 transition">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <span class="p-2 rounded-xl bg-purple-50 text-purple-600 font-bold text-sm">5</span>
+                <div>
+                  <h3 class="font-bold text-base text-slate-900">Safety</h3>
+                  <p class="text-xs text-slate-500">Domain Scope, Leakage & Toxicity Guardrails</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">4 Metrics</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">safety.scope.avg_score</div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Domain boundary enforcement (avoids answering off-topic).</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: High</span>
+                </div>
+              </div>
+
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">safety.leakage.protected_avg_score</div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Protection against prompt injection & IP extraction.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: High</span>
+                </div>
+              </div>
+
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">safety.leakage.pii_avg_score</div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Redaction and defense against PII / sensitive data leaks.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: High</span>
+                </div>
+              </div>
+
+              <div class="metric-item border border-blue-200 rounded-xl p-3 bg-blue-50/40 space-y-1.5" data-dir="lower">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">safety.toxicity.avg_toxicity</div>
+                  <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Presence of toxic, offensive, or biased content.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-blue-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
+                  <span class="text-blue-700 font-semibold">Target: 0.0 (Zero)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TYPE 6: OPERATIONS -->
+          <div class="type-card bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-slate-300 transition">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <span class="p-2 rounded-xl bg-purple-50 text-purple-600 font-bold text-sm">6</span>
+                <div>
+                  <h3 class="font-bold text-base text-slate-900">Operations</h3>
+                  <p class="text-xs text-slate-500">Latency, Cost & Production Reliability</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">7 Metrics</span>
+            </div>
+
+            <div class="space-y-3">
+              <!-- Latency P95 -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">ops.latency.e2e_p95_ms</div>
+                  <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
+                </div>
+                <div class="text-[11px] text-slate-500">95th percentile end-to-end response time.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0 ms, ∞)</code></span>
+                  <span class="text-blue-700 font-semibold">Target: Fast</span>
+                </div>
+              </div>
+
+              <!-- Latency SLO Bool -->
+              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">ops.latency.slo_e2e_pass</div>
+                  <span class="dir-bool text-xs font-semibold px-2 py-0.5 rounded">Boolean</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Checks if end-to-end latency meets defined SLA threshold.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-purple-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">{true, false}</code></span>
+                  <span class="text-purple-700 font-semibold">Target: true</span>
+                </div>
+              </div>
+
+              <!-- Latency TTFT Bool -->
+              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">ops.latency.slo_ttft_pass</div>
+                  <span class="dir-bool text-xs font-semibold px-2 py-0.5 rounded">Boolean</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Checks if Time-To-First-Token meets streaming SLO.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-purple-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">{true, false}</code></span>
+                  <span class="text-purple-700 font-semibold">Target: true</span>
+                </div>
+              </div>
+
+              <!-- Cost Per Query -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">ops.cost.cost_per_query_usd</div>
+                  <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Inference compute + token API cost per query.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[$0.0, ∞)</code></span>
+                  <span class="text-blue-700 font-semibold">Target: Minimize</span>
+                </div>
+              </div>
+
+              <!-- Cost Budget Pass Bool -->
+              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">ops.cost.budget_pass</div>
+                  <span class="dir-bool text-xs font-semibold px-2 py-0.5 rounded">Boolean</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Confirms aggregate spend remains inside budget cap.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-purple-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">{true, false}</code></span>
+                  <span class="text-purple-700 font-semibold">Target: true</span>
+                </div>
+              </div>
+
+              <!-- Reliability Success Rate -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">ops.reliability.success_rate</div>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Proportion of queries returning valid 200 responses.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0%, 100.0%]</code></span>
+                  <span class="text-emerald-700 font-semibold">Target: 100%</span>
+                </div>
+              </div>
+
+              <!-- Reliability Error Rate -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower">
+                <div class="flex justify-between items-start">
+                  <div class="font-mono text-xs font-bold text-slate-900">ops.reliability.error_rate</div>
+                  <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
+                </div>
+                <div class="text-[11px] text-slate-500">Proportion of unhandled exceptions or 5xx failures.</div>
+                <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
+                  <span>Range: <code class="font-bold text-slate-800">[0.0%, 100.0%]</code></span>
+                  <span class="text-blue-700 font-semibold">Target: 0.0%</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 2: ARCHITECTURAL TREE VIEW                                  -->
+    <!-- ================================================================= -->
+    <div id="view-tree" class="view-panel hidden space-y-6">
+      <!-- Root Node -->
+      <div class="flex justify-center">
+        <div class="bg-indigo-700 text-white rounded-2xl p-5 shadow-md text-center max-w-lg w-full border border-indigo-600">
+          <div class="text-xs uppercase tracking-wider font-semibold text-indigo-200">Regression Test Suite</div>
+          <div class="text-2xl font-black mt-1">RAG Eval Framework</div>
+          <div class="text-xs text-indigo-200 mt-1">Generic Architecture • 3 Levels • 6 Evaluation Types</div>
+        </div>
+      </div>
+
+      <!-- Connecting Lines -->
+      <div class="hidden md:flex justify-center">
+        <div class="w-4/5 h-6 border-b-2 border-l-2 border-r-2 border-slate-300 rounded-b-xl"></div>
+      </div>
+
+      <!-- 3 Primary Levels -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Level 1: Component -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Level 1</span>
+            <h3 class="font-bold text-base text-slate-900 mt-2">Component Level Evals</h3>
+            <p class="text-xs text-slate-500">Unit-level validation of retrieval and generation</p>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Type 1 Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-xs text-slate-800">1. Retriever</span>
+                <span class="text-[10px] text-slate-500">2 Metrics</span>
+              </div>
+              <ul class="text-xs space-y-1 font-mono text-slate-700">
+                <li class="flex justify-between"><span>contextual_recall</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>contextual_precision</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              </ul>
+            </div>
+
+            <!-- Type 2 Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-xs text-slate-800">2. Generator</span>
+                <span class="text-[10px] text-slate-500">2 Metrics</span>
+              </div>
+              <ul class="text-xs space-y-1 font-mono text-slate-700">
+                <li class="flex justify-between"><span>faithfulness</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>answer_relevancy</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level 2: Pipeline -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">Level 2</span>
+            <h3 class="font-bold text-base text-slate-900 mt-2">Pipeline Level Evals</h3>
+            <p class="text-xs text-slate-500">Integration alignment across the RAG interaction loop</p>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Type 3 Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-xs text-slate-800">3. RAG Triad</span>
+                <span class="text-[10px] text-slate-500">3 Metrics</span>
+              </div>
+              <ul class="text-xs space-y-1 font-mono text-slate-700">
+                <li class="flex justify-between"><span>contextual_relevancy</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>faithfulness</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>answer_relevancy</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level 3: Application -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-md">Level 3</span>
+            <h3 class="font-bold text-base text-slate-900 mt-2">Application Level Evals</h3>
+            <p class="text-xs text-slate-500">End-to-end customer quality, safety, and operations</p>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Type 4 Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-xs text-slate-800">4. Application Quality</span>
+                <span class="text-[10px] text-slate-500">3 Metrics</span>
+              </div>
+              <ul class="text-xs space-y-1 font-mono text-slate-700">
+                <li class="flex justify-between"><span>correctness_[geval]</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>completeness_[geval]</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>style_[geval]</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              </ul>
+            </div>
+
+            <!-- Type 5 Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-xs text-slate-800">5. Safety Guardrails</span>
+                <span class="text-[10px] text-slate-500">4 Metrics</span>
+              </div>
+              <ul class="text-xs space-y-1 font-mono text-slate-700">
+                <li class="flex justify-between"><span>safety.scope</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>leakage.protected</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>leakage.pii</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between"><span>toxicity</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
+              </ul>
+            </div>
+
+            <!-- Type 6 Box -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-xs text-slate-800">6. Operations</span>
+                <span class="text-[10px] text-slate-500">7 Metrics</span>
+              </div>
+              <ul class="text-xs space-y-1 font-mono text-slate-700">
+                <li class="flex justify-between"><span>latency.e2e_p95_ms</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
+                <li class="flex justify-between"><span>latency.slo_e2e_pass</span> <span class="text-purple-600 font-bold">Boolean</span></li>
+                <li class="flex justify-between"><span>cost_per_query_usd</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
+                <li class="flex justify-between"><span>reliability.success_rate</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 3: COMPLETE SPECIFICATION MATRIX TABLE                       -->
+    <!-- ================================================================= -->
+    <div id="view-table" class="view-panel hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Generic Metric Specification Matrix (21 Metrics)</h2>
+          <p class="text-xs text-slate-500">Complete catalog of evaluation types, optimal directions, valid mathematical ranges, and targets.</p>
+        </div>
+        <input type="text" id="filter-search" onkeyup="searchSpecs()" placeholder="Search metric key..." class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse" id="spec-table">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+              <th class="p-3">#</th>
+              <th class="p-3">Evaluation Level</th>
+              <th class="p-3">Evaluation Type</th>
+              <th class="p-3">Metric Key</th>
+              <th class="p-3">Optimal Direction</th>
+              <th class="p-3">Expected Range</th>
+              <th class="p-3">Target Objective</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-slate-700 font-sans">
+            <!-- 1. Retriever -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">1</td>
+              <td class="p-3 font-semibold text-emerald-700">Component</td>
+              <td class="p-3 font-semibold text-amber-800">1. Retriever</td>
+              <td class="p-3 font-mono font-bold text-slate-900">retriever.contextual_recall.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Maximize context coverage of ground-truth facts</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">2</td>
+              <td class="p-3 font-semibold text-emerald-700">Component</td>
+              <td class="p-3 font-semibold text-amber-800">1. Retriever</td>
+              <td class="p-3 font-mono font-bold text-slate-900">retriever.contextual_precision.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Rank relevant chunks at top positions</td>
+            </tr>
+
+            <!-- 2. Generator -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">3</td>
+              <td class="p-3 font-semibold text-emerald-700">Component</td>
+              <td class="p-3 font-semibold text-amber-800">2. Generator</td>
+              <td class="p-3 font-mono font-bold text-slate-900">generator.faithfulness.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Eliminate hallucination; ground all claims</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">4</td>
+              <td class="p-3 font-semibold text-emerald-700">Component</td>
+              <td class="p-3 font-semibold text-amber-800">2. Generator</td>
+              <td class="p-3 font-mono font-bold text-slate-900">generator.answer_relevancy.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Directly resolve user prompt without fluff</td>
+            </tr>
+
+            <!-- 3. RAG Triad -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">5</td>
+              <td class="p-3 font-semibold text-blue-700">Pipeline</td>
+              <td class="p-3 font-semibold text-blue-800">3. RAG Triad</td>
+              <td class="p-3 font-mono font-bold text-slate-900">pipeline.contextual_relevancy.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Minimize context noise; retrieve relevant chunks only</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">6</td>
+              <td class="p-3 font-semibold text-blue-700">Pipeline</td>
+              <td class="p-3 font-semibold text-blue-800">3. RAG Triad</td>
+              <td class="p-3 font-mono font-bold text-slate-900">pipeline.faithfulness.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">End-to-end response strictly grounded in context</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">7</td>
+              <td class="p-3 font-semibold text-blue-700">Pipeline</td>
+              <td class="p-3 font-semibold text-blue-800">3. RAG Triad</td>
+              <td class="p-3 font-mono font-bold text-slate-900">pipeline.answer_relevancy.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">End-to-end response semantically matches user intent</td>
+            </tr>
+
+            <!-- 4. Application Quality -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">8</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">4. Application Quality</td>
+              <td class="p-3 font-mono font-bold text-slate-900">application.correctness_[geval].avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Factual and logical correctness (LLM-as-a-judge)</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">9</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">4. Application Quality</td>
+              <td class="p-3 font-mono font-bold text-slate-900">application.completeness_[geval].avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Comprehensive coverage of all question sub-components</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">10</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">4. Application Quality</td>
+              <td class="p-3 font-mono font-bold text-slate-900">application.style_[geval].avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Tone, clarity, format, and structure adherence</td>
+            </tr>
+
+            <!-- 5. Safety -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">11</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">5. Safety</td>
+              <td class="p-3 font-mono font-bold text-slate-900">safety.scope.avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Domain boundary enforcement; refuse out-of-scope tasks</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">12</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">5. Safety</td>
+              <td class="p-3 font-mono font-bold text-slate-900">safety.leakage.protected_avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Prevent system prompt / proprietary knowledge extraction</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">13</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">5. Safety</td>
+              <td class="p-3 font-mono font-bold text-slate-900">safety.leakage.pii_avg_score</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Zero sensitive personally identifiable data leaks</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">14</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">5. Safety</td>
+              <td class="p-3 font-mono font-bold text-slate-900">safety.toxicity.avg_toxicity</td>
+              <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
+              <td class="p-3 font-mono">[0.0, 1.0]</td>
+              <td class="p-3 text-slate-600">Strict zero-toxicity target (0.0)</td>
+            </tr>
+
+            <!-- 6. Operations -->
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">15</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">6. Operations</td>
+              <td class="p-3 font-mono font-bold text-slate-900">ops.latency.e2e_p95_ms</td>
+              <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
+              <td class="p-3 font-mono">[0 ms, ∞)</td>
+              <td class="p-3 text-slate-600">Minimize 95th percentile end-to-end latency</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">16</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">6. Operations</td>
+              <td class="p-3 font-mono font-bold text-slate-900">ops.latency.slo_e2e_pass</td>
+              <td class="p-3"><span class="dir-bool px-2 py-0.5 rounded font-semibold text-[11px]">Boolean</span></td>
+              <td class="p-3 font-mono">{true, false}</td>
+              <td class="p-3 text-slate-600">Must pass end-to-end latency SLA</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">17</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">6. Operations</td>
+              <td class="p-3 font-mono font-bold text-slate-900">ops.latency.slo_ttft_pass</td>
+              <td class="p-3"><span class="dir-bool px-2 py-0.5 rounded font-semibold text-[11px]">Boolean</span></td>
+              <td class="p-3 font-mono">{true, false}</td>
+              <td class="p-3 text-slate-600">Must pass Time-To-First-Token streaming target</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">18</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">6. Operations</td>
+              <td class="p-3 font-mono font-bold text-slate-900">ops.cost.cost_per_query_usd</td>
+              <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
+              <td class="p-3 font-mono">[$0.00, ∞)</td>
+              <td class="p-3 text-slate-600">Minimize model inference & retrieval compute cost</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">19</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">6. Operations</td>
+              <td class="p-3 font-mono font-bold text-slate-900">ops.cost.budget_pass</td>
+              <td class="p-3"><span class="dir-bool px-2 py-0.5 rounded font-semibold text-[11px]">Boolean</span></td>
+              <td class="p-3 font-mono">{true, false}</td>
+              <td class="p-3 text-slate-600">Must operate within pre-allocated budget cap</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">20</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">6. Operations</td>
+              <td class="p-3 font-mono font-bold text-slate-900">ops.reliability.success_rate</td>
+              <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
+              <td class="p-3 font-mono">[0.0%, 100.0%]</td>
+              <td class="p-3 text-slate-600">Target high availability (99.9%+)</td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="p-3 font-mono text-slate-400">21</td>
+              <td class="p-3 font-semibold text-purple-700">Application</td>
+              <td class="p-3 font-semibold text-purple-800">6. Operations</td>
+              <td class="p-3 font-mono font-bold text-slate-900">ops.reliability.error_rate</td>
+              <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
+              <td class="p-3 font-mono">[0.0%, 100.0%]</td>
+              <td class="p-3 text-slate-600">Target zero unhandled errors or pipeline timeouts</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function switchView(viewName) {
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+      document.getElementById('view-' + viewName).classList.remove('hidden');
+
+      const tabs = {
+        'cards': document.getElementById('tab-cards'),
+        'tree': document.getElementById('tab-tree'),
+        'table': document.getElementById('tab-table')
+      };
+
+      Object.keys(tabs).forEach(k => {
+        if (k === viewName) {
+          tabs[k].className = "px-4 py-2 rounded-lg bg-white text-indigo-600 font-bold shadow-sm transition";
+        } else {
+          tabs[k].className = "px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition";
+        }
+      });
+    }
+
+    function filterDirection(dir) {
+      document.querySelectorAll('.dir-btn').forEach(b => {
+        b.className = "dir-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium";
+      });
+      event.target.className = "dir-btn active px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium";
+
+      const items = document.querySelectorAll('.metric-item');
+      items.forEach(item => {
+        if (dir === 'all' || item.dataset.dir === dir) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    function searchSpecs() {
+      const input = document.getElementById("filter-search");
+      const filter = input.value.toUpperCase();
+      const table = document.getElementById("spec-table");
+      const tr = table.getElementsByTagName("tr");
+
+      for (let i = 1; i < tr.length; i++) {
+        const tdKey = tr[i].getElementsByTagName("td")[3];
+        const tdType = tr[i].getElementsByTagName("td")[2];
+        if (tdKey || tdType) {
+          const txtKey = tdKey ? (tdKey.textContent || tdKey.innerText) : "";
+          const txtType = tdType ? (tdType.textContent || tdType.innerText) : "";
+          if (txtKey.toUpperCase().indexOf(filter) > -1 || txtType.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }       
+      }
+    }
+  </script>
+</body>
+</html>
