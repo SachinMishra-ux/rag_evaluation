@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAG Evaluation Framework - 6 Core Evaluation Types</title>
+  <title>RAG Evaluation Framework - 6 Core Evaluation Types & Reference Classification</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <!-- KaTeX for pristine mathematical typesetting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
   <style>
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -14,6 +18,16 @@
     .dir-higher { background-color: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); }
     .dir-lower { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.25); }
     .dir-bool { background-color: rgba(168, 85, 247, 0.1); color: #7e22ce; border: 1px solid rgba(168, 85, 247, 0.25); }
+    
+    .ref-badge-free { background-color: rgba(13, 148, 136, 0.1); color: #0f766e; border: 1px solid rgba(13, 148, 136, 0.25); }
+    .ref-badge-based { background-color: rgba(245, 158, 11, 0.1); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .formula-box {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 3px solid #6366f1;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased min-h-screen p-4 sm:p-6 lg:p-8">
@@ -34,7 +48,7 @@
               RAG Evaluation & Regression Framework
             </h1>
             <p class="text-sm text-slate-500">
-              Standard Architecture for 6 Core Evaluation Types: Direction, Range & Target Specifications
+              Complete Reference Guide: Reference-Free vs. Reference-Based Metrics, Definitions & Mathematical Formulations
             </p>
           </div>
         </div>
@@ -48,11 +62,44 @@
         <div class="bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-indigo-700">
           📑 6 Core Types
         </div>
+        <div class="bg-teal-50 border border-teal-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-teal-800">
+          ⚡ 18 Reference-Free
+        </div>
+        <div class="bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-800">
+          🎯 3 Reference-Based
+        </div>
         <div class="bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700">
           📐 21 Total Metrics
         </div>
       </div>
     </header>
+
+    <!-- Reference Classification Explainer Banner -->
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-sm border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="space-y-1 max-w-3xl">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 font-bold text-xs uppercase tracking-wider">Evaluation Paradigm</span>
+          <span class="text-slate-400 text-xs">•</span>
+          <span class="text-xs text-slate-300">Ground Truth Dependency Distinction</span>
+        </div>
+        <h3 class="font-bold text-base text-slate-100">
+          Reference-Based vs. Reference-Free Metrics
+        </h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          <strong class="text-amber-300">🎯 Reference-Based Metrics</strong> evaluate outputs against pre-annotated ground-truth test datasets (ideal answers or verified chunks). In contrast, <strong class="text-teal-300">⚡ Reference-Free Metrics</strong> evaluate quality, groundedness, and security strictly using runtime inputs (Query ↔ Retrieved Context ↔ Generated Answer) without requiring human-authored golden labels.
+        </p>
+      </div>
+      <div class="flex sm:flex-col gap-2 w-full sm:w-auto shrink-0">
+        <div class="px-3 py-2 rounded-xl bg-white/10 border border-white/15 text-xs">
+          <span class="text-amber-300 font-bold block">🎯 Reference-Based (3)</span>
+          <span class="text-[11px] text-slate-300">Recall, Precision, Correctness</span>
+        </div>
+        <div class="px-3 py-2 rounded-xl bg-white/10 border border-white/15 text-xs">
+          <span class="text-teal-300 font-bold block">⚡ Reference-Free (18)</span>
+          <span class="text-[11px] text-slate-300">Faithfulness, Relevancy, Safety, Ops</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Navigation & Filtering Bar -->
     <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
@@ -69,13 +116,24 @@
         </button>
       </div>
 
-      <!-- Quick Direction Legend & Filter -->
-      <div class="flex flex-wrap items-center gap-2 text-xs">
-        <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Filter Direction:</span>
-        <button onclick="filterDirection('all')" class="dir-btn active px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium">All</button>
-        <button onclick="filterDirection('higher')" class="dir-btn px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 font-medium">Higher ↑</button>
-        <button onclick="filterDirection('lower')" class="dir-btn px-3 py-1.5 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 font-medium">Lower ↓</button>
-        <button onclick="filterDirection('bool')" class="dir-btn px-3 py-1.5 rounded-lg border border-purple-300 bg-purple-50 text-purple-700 font-medium">Boolean</button>
+      <!-- Quick Filter Bar -->
+      <div class="flex flex-wrap items-center gap-3 text-xs">
+        <!-- Reference Type Filter -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Reference:</span>
+          <button onclick="filterRefType('all')" class="ref-btn active px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium">All</button>
+          <button onclick="filterRefType('free')" class="ref-btn px-2.5 py-1.5 rounded-lg border border-teal-300 bg-teal-50 text-teal-800 font-medium">⚡ Free</button>
+          <button onclick="filterRefType('based')" class="ref-btn px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 font-medium">🎯 Based</button>
+        </div>
+
+        <!-- Direction Filter -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Direction:</span>
+          <button onclick="filterDirection('all')" class="dir-btn active px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium">All</button>
+          <button onclick="filterDirection('higher')" class="dir-btn px-2.5 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 font-medium">Higher ↑</button>
+          <button onclick="filterDirection('lower')" class="dir-btn px-2.5 py-1.5 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 font-medium">Lower ↓</button>
+          <button onclick="filterDirection('bool')" class="dir-btn px-2.5 py-1.5 rounded-lg border border-purple-300 bg-purple-50 text-purple-700 font-medium">Boolean</button>
+        </div>
       </div>
     </div>
 
@@ -109,31 +167,61 @@
               <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">2 Metrics</span>
             </div>
 
-            <div class="space-y-3">
-              <!-- Metric 1 -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
-                <div class="flex justify-between items-start">
+            <div class="space-y-4">
+              <!-- Metric 1: Contextual Recall -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2.5" data-dir="higher" data-ref="based">
+                <div class="flex justify-between items-start gap-2">
                   <div>
-                    <div class="font-mono text-xs font-bold text-slate-900">retriever.contextual_recall.avg_score</div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Ratio of ground-truth relevant facts captured in retrieved chunks.</div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="font-mono text-xs font-bold text-slate-900">retriever.contextual_recall.avg_score</span>
+                      <span class="ref-badge-based text-[10px] font-semibold px-2 py-0.5 rounded">🎯 Reference-Based</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1">
+                      <strong>Definition:</strong> Measures the fraction of factual statements in the ground-truth answer that can be successfully attributed to the retrieved context chunks.
+                    </p>
                   </div>
-                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded shrink-0">Higher ↑</span>
                 </div>
+
+                <!-- Mathematical Formula -->
+                <div class="formula-box p-2.5 rounded-lg text-xs space-y-1">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mathematical Formula</div>
+                  <div class="text-slate-800 text-[11px]">
+                    \(\text{Contextual Recall} = \frac{|\text{Ground-Truth Sentences Attributed to Context}|}{|\text{Total Sentences in Ground-Truth Answer}|}\)
+                  </div>
+                  <div class="text-[10px] text-slate-500">Requires: Annotated Ground-Truth Reference Answer</div>
+                </div>
+
                 <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
                   <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
                 </div>
               </div>
 
-              <!-- Metric 2 -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
-                <div class="flex justify-between items-start">
+              <!-- Metric 2: Contextual Precision -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2.5" data-dir="higher" data-ref="based">
+                <div class="flex justify-between items-start gap-2">
                   <div>
-                    <div class="font-mono text-xs font-bold text-slate-900">retriever.contextual_precision.avg_score</div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Rank ordering accuracy; whether relevant chunks are placed at top k.</div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="font-mono text-xs font-bold text-slate-900">retriever.contextual_precision.avg_score</span>
+                      <span class="ref-badge-based text-[10px] font-semibold px-2 py-0.5 rounded">🎯 Reference-Based</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1">
+                      <strong>Definition:</strong> Evaluates rank ordering accuracy using Weighted Mean Average Precision (MAP), rewarding pipelines that place relevant chunks at the very top.
+                    </p>
                   </div>
-                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded shrink-0">Higher ↑</span>
                 </div>
+
+                <!-- Mathematical Formula -->
+                <div class="formula-box p-2.5 rounded-lg text-xs space-y-1">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mathematical Formula</div>
+                  <div class="text-slate-800 text-[11px]">
+                    \(\text{Precision@K} = \frac{\sum_{k=1}^K (\text{Precision@}k \times v_k)}{\text{Total Relevant Chunks in Top } K}, \quad v_k \in \{0, 1\}\)
+                  </div>
+                  <div class="text-[10px] text-slate-500">Requires: Ground-Truth Relevant Chunks / Relevance Annotation</div>
+                </div>
+
                 <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
                   <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
@@ -155,31 +243,61 @@
               <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">2 Metrics</span>
             </div>
 
-            <div class="space-y-3">
-              <!-- Metric 1 -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
-                <div class="flex justify-between items-start">
+            <div class="space-y-4">
+              <!-- Metric 1: Faithfulness -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2.5" data-dir="higher" data-ref="free">
+                <div class="flex justify-between items-start gap-2">
                   <div>
-                    <div class="font-mono text-xs font-bold text-slate-900">generator.faithfulness.avg_score</div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Hallucination check: facts asserted are grounded in retrieved context.</div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="font-mono text-xs font-bold text-slate-900">generator.faithfulness.avg_score</span>
+                      <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded">⚡ Reference-Free</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1">
+                      <strong>Definition:</strong> Hallucination detector assessing whether claims in the generated answer are strictly inferable from and grounded in the retrieved context.
+                    </p>
                   </div>
-                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded shrink-0">Higher ↑</span>
                 </div>
+
+                <!-- Mathematical Formula -->
+                <div class="formula-box p-2.5 rounded-lg text-xs space-y-1">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mathematical Formula</div>
+                  <div class="text-slate-800 text-[11px]">
+                    \(\text{Faithfulness} = \frac{|\text{Truthful Claims Grounded in Context}|}{|\text{Total Claims Made in Response}|}\)
+                  </div>
+                  <div class="text-[10px] text-slate-500">Requires: Retrieved Context + Generated Output only (No golden answer needed)</div>
+                </div>
+
                 <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
                   <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
                 </div>
               </div>
 
-              <!-- Metric 2 -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher">
-                <div class="flex justify-between items-start">
+              <!-- Metric 2: Answer Relevancy -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2.5" data-dir="higher" data-ref="free">
+                <div class="flex justify-between items-start gap-2">
                   <div>
-                    <div class="font-mono text-xs font-bold text-slate-900">generator.answer_relevancy.avg_score</div>
-                    <div class="text-[11px] text-slate-500 mt-0.5">Conciseness and relevance of generated text to the user prompt.</div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="font-mono text-xs font-bold text-slate-900">generator.answer_relevancy.avg_score</span>
+                      <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded">⚡ Reference-Free</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mt-1">
+                      <strong>Definition:</strong> Measures how directly and concisely the answer resolves the prompt, penalizing unprompted digressions and incomplete responses.
+                    </p>
                   </div>
-                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
+                  <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded shrink-0">Higher ↑</span>
                 </div>
+
+                <!-- Mathematical Formula -->
+                <div class="formula-box p-2.5 rounded-lg text-xs space-y-1">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mathematical Formula</div>
+                  <div class="text-slate-800 text-[11px]">
+                    \(\text{Answer Relevancy} = \frac{1}{N}\sum_{i=1}^N \cos(\mathbf{e}_{\text{gen\_query}_i}, \mathbf{e}_{\text{original\_query}})\)
+                  </div>
+                  <div class="text-[10px] text-slate-500">Requires: User Query + Generated Output only</div>
+                </div>
+
                 <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
                   <span class="text-slate-500 font-medium">Valid Range: <code class="text-slate-800 font-bold">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: Maximize (→ 1.0)</span>
@@ -211,46 +329,91 @@
                 <p class="text-xs text-slate-500">Holistic Pipeline Coupling: Context Relevancy, Groundedness, Answer Relevancy</p>
               </div>
             </div>
-            <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">3 Metrics</span>
+            <div class="flex items-center gap-2">
+              <span class="ref-badge-free text-[11px] font-semibold px-2.5 py-0.5 rounded-full">All 3 Reference-Free</span>
+              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">3 Metrics</span>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Triad 1 -->
-            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2" data-dir="higher">
+            <!-- Triad Leg 1 -->
+            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2.5" data-dir="higher" data-ref="free">
               <div class="flex justify-between items-start">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 1</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 1 (Query ↔ Context)</span>
                 <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
               </div>
-              <div class="font-mono text-xs font-bold text-slate-900">pipeline.contextual_relevancy.avg_score</div>
-              <p class="text-[11px] text-slate-500">Signal-to-noise ratio: fraction of retrieved context relevant to user query.</p>
+              <div>
+                <div class="font-mono text-xs font-bold text-slate-900">pipeline.contextual_relevancy.avg_score</div>
+                <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.2 rounded mt-1 inline-block">⚡ Reference-Free</span>
+              </div>
+              <p class="text-xs text-slate-600">
+                <strong>Definition:</strong> Context noise filter measuring the proportion of sentences in the retrieved chunks directly pertinent to the query.
+              </p>
+              
+              <!-- Formula -->
+              <div class="formula-box p-2 rounded-lg text-xs space-y-1">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Formula</div>
+                <div class="text-slate-800 text-[11px]">
+                  \(\frac{|\text{Relevant Context Sentences}|}{|\text{Total Retrieved Sentences}|}\)
+                </div>
+              </div>
+
               <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
                 <span class="text-slate-500">Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                 <span class="text-emerald-700 font-semibold">Target: High</span>
               </div>
             </div>
 
-            <!-- Triad 2 -->
-            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2" data-dir="higher">
+            <!-- Triad Leg 2 -->
+            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2.5" data-dir="higher" data-ref="free">
               <div class="flex justify-between items-start">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 2</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 2 (Context ↔ Answer)</span>
                 <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
               </div>
-              <div class="font-mono text-xs font-bold text-slate-900">pipeline.faithfulness.avg_score</div>
-              <p class="text-[11px] text-slate-500">Groundedness: statements in the generated response verified by the retrieved context.</p>
+              <div>
+                <div class="font-mono text-xs font-bold text-slate-900">pipeline.faithfulness.avg_score</div>
+                <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.2 rounded mt-1 inline-block">⚡ Reference-Free</span>
+              </div>
+              <p class="text-xs text-slate-600">
+                <strong>Definition:</strong> Groundedness ratio confirming that 100% of claims in the generated response originate from the context.
+              </p>
+
+              <!-- Formula -->
+              <div class="formula-box p-2 rounded-lg text-xs space-y-1">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Formula</div>
+                <div class="text-slate-800 text-[11px]">
+                  \(\frac{|\text{Grounded Statements in Context}|}{|\text{Total Statements in Output}|}\)
+                </div>
+              </div>
+
               <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
                 <span class="text-slate-500">Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                 <span class="text-emerald-700 font-semibold">Target: High</span>
               </div>
             </div>
 
-            <!-- Triad 3 -->
-            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2" data-dir="higher">
+            <!-- Triad Leg 3 -->
+            <div class="metric-item border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 space-y-2.5" data-dir="higher" data-ref="free">
               <div class="flex justify-between items-start">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 3</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Triad Leg 3 (Query ↔ Answer)</span>
                 <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
               </div>
-              <div class="font-mono text-xs font-bold text-slate-900">pipeline.answer_relevancy.avg_score</div>
-              <p class="text-[11px] text-slate-500">Response fidelity: degree to which the answer resolves original user question.</p>
+              <div>
+                <div class="font-mono text-xs font-bold text-slate-900">pipeline.answer_relevancy.avg_score</div>
+                <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.2 rounded mt-1 inline-block">⚡ Reference-Free</span>
+              </div>
+              <p class="text-xs text-slate-600">
+                <strong>Definition:</strong> Response fidelity confirming the generated answer directly satisfies the user's information need without hallucinated filler.
+              </p>
+
+              <!-- Formula -->
+              <div class="formula-box p-2 rounded-lg text-xs space-y-1">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Formula</div>
+                <div class="text-slate-800 text-[11px]">
+                  \(\frac{|\text{Relevant Statements Addressing Query}|}{|\text{Total Statements in Generated Answer}|}\)
+                </div>
+              </div>
+
               <div class="pt-2 border-t border-slate-200/60 flex justify-between items-center text-xs">
                 <span class="text-slate-500">Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                 <span class="text-emerald-700 font-semibold">Target: High</span>
@@ -286,36 +449,67 @@
             </div>
 
             <div class="space-y-3">
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+              <!-- Correctness -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher" data-ref="based">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">application.correctness_[geval]</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">application.correctness_[geval]</div>
+                    <span class="ref-badge-based text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">🎯 Reference-Based</span>
+                  </div>
                   <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Factual and semantic correctness of final response.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Semantic and factual alignment of generated answer with the human-authored reference golden output.</div>
+                
+                <div class="formula-box p-2 rounded-lg text-xs space-y-0.5">
+                  <div class="text-[10px] font-bold text-slate-400">Formula (G-Eval Criteria Consensus)</div>
+                  <div class="text-[11px] text-slate-800">\(\text{Score} = \sum_{i=1}^n (w_i \times s_i), \quad s_i \in [1, 5]\)</div>
+                  <div class="text-[10px] text-slate-500">Requires: Ground-Truth Expected Output</div>
+                </div>
+
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: High</span>
                 </div>
               </div>
 
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+              <!-- Completeness -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher" data-ref="based">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">application.completeness_[geval]</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">application.completeness_[geval]</div>
+                    <span class="ref-badge-based text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">🎯 Reference-Based</span>
+                  </div>
                   <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Completeness in addressing all facets of user prompt.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Exhaustiveness in answering every sub-question and accounting component present in the user prompt.</div>
+
+                <div class="formula-box p-2 rounded-lg text-xs space-y-0.5">
+                  <div class="text-[10px] font-bold text-slate-400">Formula</div>
+                  <div class="text-[11px] text-slate-800">\(\text{Completeness} = \frac{|\text{Addressed Sub-Questions}|}{|\text{Total Sub-Questions in Prompt / Ref}|}\)</div>
+                </div>
+
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: High</span>
                 </div>
               </div>
 
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+              <!-- Style -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">application.style_[geval]</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">application.style_[geval]</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Readability, tone, clarity, and Markdown structure.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Professional analytical tone, structural clarity, formatting guidelines (Markdown tables/bullet points).</div>
+
+                <div class="formula-box p-2 rounded-lg text-xs space-y-0.5">
+                  <div class="text-[10px] font-bold text-slate-400">Formula (LLM Rubric Consensus)</div>
+                  <div class="text-[11px] text-slate-800">\(\text{Style} = \frac{\text{Rubric Score}}{\text{Max Rubric Points}} \in [0.0, 1.0]\)</div>
+                </div>
+
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: High</span>
@@ -334,52 +528,95 @@
                   <p class="text-xs text-slate-500">Domain Scope, Leakage & Toxicity Guardrails</p>
                 </div>
               </div>
-              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">4 Metrics</span>
+              <div class="flex items-center gap-2">
+                <span class="ref-badge-free text-[11px] font-semibold px-2.5 py-0.5 rounded-full">All 4 Reference-Free</span>
+                <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">4 Metrics</span>
+              </div>
             </div>
 
             <div class="space-y-3">
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+              <!-- Scope -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">safety.scope.avg_score</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">safety.scope.avg_score</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Domain boundary enforcement (avoids answering off-topic).</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Domain boundary enforcement; gracefully declining off-topic or speculative questions.</div>
+
+                <div class="formula-box p-2 rounded-lg text-xs space-y-0.5">
+                  <div class="text-[10px] font-bold text-slate-400">Formula</div>
+                  <div class="text-[11px] text-slate-800">\(\text{Scope} = \frac{|\text{Valid Answers} + \text{Valid Declines}|}{|\text{Total Domain Requests}|}\)</div>
+                </div>
+
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: High</span>
                 </div>
               </div>
 
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+              <!-- Protected Leakage -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">safety.leakage.protected_avg_score</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">safety.leakage.protected_avg_score</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Protection against prompt injection & IP extraction.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Resistance against adversarial prompt injection and proprietary instructions extraction.</div>
+
+                <div class="formula-box p-2 rounded-lg text-xs space-y-0.5">
+                  <div class="text-[10px] font-bold text-slate-400">Formula</div>
+                  <div class="text-[11px] text-slate-800">\(\text{Protection} = 1.0 - \frac{|\text{Successful Prompt Leaks}|}{|\text{Adversarial Injection Probes}|}\)</div>
+                </div>
+
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: High</span>
                 </div>
               </div>
 
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+              <!-- PII Leakage -->
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-2" data-dir="higher" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">safety.leakage.pii_avg_score</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">safety.leakage.pii_avg_score</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Redaction and defense against PII / sensitive data leaks.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Redaction and defense preventing confidential personally identifiable information (PII) leakage.</div>
+
+                <div class="formula-box p-2 rounded-lg text-xs space-y-0.5">
+                  <div class="text-[10px] font-bold text-slate-400">Formula</div>
+                  <div class="text-[11px] text-slate-800">\(\text{PII Defense} = 1.0 - \frac{|\text{Responses with Exposed PII}|}{|\text{Total Evaluated Outputs}|}\)</div>
+                </div>
+
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: High</span>
                 </div>
               </div>
 
-              <div class="metric-item border border-blue-200 rounded-xl p-3 bg-blue-50/40 space-y-1.5" data-dir="lower">
+              <!-- Toxicity -->
+              <div class="metric-item border border-blue-200 rounded-xl p-3 bg-blue-50/40 space-y-2" data-dir="lower" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">safety.toxicity.avg_toxicity</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">safety.toxicity.avg_toxicity</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Presence of toxic, offensive, or biased content.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Probability that the response contains demeaning, hostile, or discriminatory content.</div>
+
+                <div class="formula-box p-2 rounded-lg text-xs space-y-0.5">
+                  <div class="text-[10px] font-bold text-slate-400">Formula</div>
+                  <div class="text-[11px] text-slate-800">\(\text{Toxicity} = \max_{s \in \text{Sentences}} P(\text{Toxic} \mid s), \quad \text{Target: } 0.0\)</div>
+                </div>
+
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-blue-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0, 1.0]</code></span>
                   <span class="text-blue-700 font-semibold">Target: 0.0 (Zero)</span>
@@ -398,17 +635,24 @@
                   <p class="text-xs text-slate-500">Latency, Cost & Production Reliability</p>
                 </div>
               </div>
-              <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">7 Metrics</span>
+              <div class="flex items-center gap-2">
+                <span class="ref-badge-free text-[11px] font-semibold px-2.5 py-0.5 rounded-full">All 7 Reference-Free</span>
+                <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">7 Metrics</span>
+              </div>
             </div>
 
             <div class="space-y-3">
               <!-- Latency P95 -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower">
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">ops.latency.e2e_p95_ms</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">ops.latency.e2e_p95_ms</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
                 </div>
-                <div class="text-[11px] text-slate-500">95th percentile end-to-end response time.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> 95th percentile end-to-end response time across all production queries.</div>
+                <div class="formula-box p-1.5 rounded text-[11px] text-slate-800">\(P_{95} = L_{(\lceil 0.95 \times N \rceil)}\) on sorted latencies</div>
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0 ms, ∞)</code></span>
                   <span class="text-blue-700 font-semibold">Target: Fast</span>
@@ -416,12 +660,15 @@
               </div>
 
               <!-- Latency SLO Bool -->
-              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool">
+              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">ops.latency.slo_e2e_pass</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">ops.latency.slo_e2e_pass</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-bool text-xs font-semibold px-2 py-0.5 rounded">Boolean</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Checks if end-to-end latency meets defined SLA threshold.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Confirms if end-to-end latency meets SLA threshold: \(\mathbb{I}(P_{95} \le \text{Threshold})\).</div>
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-purple-200/60">
                   <span>Range: <code class="font-bold text-slate-800">{true, false}</code></span>
                   <span class="text-purple-700 font-semibold">Target: true</span>
@@ -429,12 +676,15 @@
               </div>
 
               <!-- Latency TTFT Bool -->
-              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool">
+              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">ops.latency.slo_ttft_pass</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">ops.latency.slo_ttft_pass</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-bool text-xs font-semibold px-2 py-0.5 rounded">Boolean</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Checks if Time-To-First-Token meets streaming SLO.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Checks if streaming Time-To-First-Token satisfies real-time interactivity limit.</div>
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-purple-200/60">
                   <span>Range: <code class="font-bold text-slate-800">{true, false}</code></span>
                   <span class="text-purple-700 font-semibold">Target: true</span>
@@ -442,12 +692,15 @@
               </div>
 
               <!-- Cost Per Query -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower">
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">ops.cost.cost_per_query_usd</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">ops.cost.cost_per_query_usd</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Inference compute + token API cost per query.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Token compute + vector inference expenditure per query: \((N_{\text{in}}P_{\text{in}} + N_{\text{out}}P_{\text{out}})\).</div>
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[$0.0, ∞)</code></span>
                   <span class="text-blue-700 font-semibold">Target: Minimize</span>
@@ -455,12 +708,15 @@
               </div>
 
               <!-- Cost Budget Pass Bool -->
-              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool">
+              <div class="metric-item border border-purple-200 rounded-xl p-3 bg-purple-50/30 space-y-1.5" data-dir="bool" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">ops.cost.budget_pass</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">ops.cost.budget_pass</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-bool text-xs font-semibold px-2 py-0.5 rounded">Boolean</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Confirms aggregate spend remains inside budget cap.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Verifies that aggregate spend remains within the allocated budget cap.</div>
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-purple-200/60">
                   <span>Range: <code class="font-bold text-slate-800">{true, false}</code></span>
                   <span class="text-purple-700 font-semibold">Target: true</span>
@@ -468,12 +724,15 @@
               </div>
 
               <!-- Reliability Success Rate -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher">
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="higher" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">ops.reliability.success_rate</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">ops.reliability.success_rate</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-higher text-xs font-semibold px-2 py-0.5 rounded">Higher ↑</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Proportion of queries returning valid 200 responses.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Availability percentage: \(\frac{N_{\text{success}}}{N_{\text{total}}} \times 100\%\).</div>
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0%, 100.0%]</code></span>
                   <span class="text-emerald-700 font-semibold">Target: 100%</span>
@@ -481,12 +740,15 @@
               </div>
 
               <!-- Reliability Error Rate -->
-              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower">
+              <div class="metric-item border border-slate-200 rounded-xl p-3 bg-slate-50/50 space-y-1.5" data-dir="lower" data-ref="free">
                 <div class="flex justify-between items-start">
-                  <div class="font-mono text-xs font-bold text-slate-900">ops.reliability.error_rate</div>
+                  <div>
+                    <div class="font-mono text-xs font-bold text-slate-900">ops.reliability.error_rate</div>
+                    <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded mt-0.5 inline-block">⚡ Reference-Free</span>
+                  </div>
                   <span class="dir-lower text-xs font-semibold px-2 py-0.5 rounded">Lower ↓</span>
                 </div>
-                <div class="text-[11px] text-slate-500">Proportion of unhandled exceptions or 5xx failures.</div>
+                <div class="text-xs text-slate-600"><strong>Definition:</strong> Failure rate: \(\frac{N_{\text{errors}}}{N_{\text{total}}} \times 100\% = 100\% - \text{Success Rate}\).</div>
                 <div class="text-[11px] text-slate-500 flex justify-between pt-1 border-t border-slate-200/60">
                   <span>Range: <code class="font-bold text-slate-800">[0.0%, 100.0%]</code></span>
                   <span class="text-blue-700 font-semibold">Target: 0.0%</span>
@@ -510,7 +772,7 @@
         <div class="bg-indigo-700 text-white rounded-2xl p-5 shadow-md text-center max-w-lg w-full border border-indigo-600">
           <div class="text-xs uppercase tracking-wider font-semibold text-indigo-200">Regression Test Suite</div>
           <div class="text-2xl font-black mt-1">RAG Eval Framework</div>
-          <div class="text-xs text-indigo-200 mt-1">Generic Architecture • 3 Levels • 6 Evaluation Types</div>
+          <div class="text-xs text-indigo-200 mt-1">Generic Architecture • 3 Levels • 6 Evaluation Types • 21 Metrics</div>
         </div>
       </div>
 
@@ -535,11 +797,17 @@
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="font-bold text-xs text-slate-800">1. Retriever</span>
-                <span class="text-[10px] text-slate-500">2 Metrics</span>
+                <span class="ref-badge-based text-[10px] font-semibold px-2 py-0.5 rounded">🎯 Both Reference-Based</span>
               </div>
-              <ul class="text-xs space-y-1 font-mono text-slate-700">
-                <li class="flex justify-between"><span>contextual_recall</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>contextual_precision</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              <ul class="text-xs space-y-1.5 font-mono text-slate-700">
+                <li class="flex justify-between items-center">
+                  <span>contextual_recall</span>
+                  <span class="text-emerald-600 font-bold">Higher ↑</span>
+                </li>
+                <li class="flex justify-between items-center">
+                  <span>contextual_precision</span>
+                  <span class="text-emerald-600 font-bold">Higher ↑</span>
+                </li>
               </ul>
             </div>
 
@@ -547,11 +815,17 @@
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="font-bold text-xs text-slate-800">2. Generator</span>
-                <span class="text-[10px] text-slate-500">2 Metrics</span>
+                <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded">⚡ Both Reference-Free</span>
               </div>
-              <ul class="text-xs space-y-1 font-mono text-slate-700">
-                <li class="flex justify-between"><span>faithfulness</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>answer_relevancy</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              <ul class="text-xs space-y-1.5 font-mono text-slate-700">
+                <li class="flex justify-between items-center">
+                  <span>faithfulness</span>
+                  <span class="text-emerald-600 font-bold">Higher ↑</span>
+                </li>
+                <li class="flex justify-between items-center">
+                  <span>answer_relevancy</span>
+                  <span class="text-emerald-600 font-bold">Higher ↑</span>
+                </li>
               </ul>
             </div>
           </div>
@@ -570,12 +844,21 @@
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="font-bold text-xs text-slate-800">3. RAG Triad</span>
-                <span class="text-[10px] text-slate-500">3 Metrics</span>
+                <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded">⚡ All 3 Reference-Free</span>
               </div>
-              <ul class="text-xs space-y-1 font-mono text-slate-700">
-                <li class="flex justify-between"><span>contextual_relevancy</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>faithfulness</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>answer_relevancy</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              <ul class="text-xs space-y-1.5 font-mono text-slate-700">
+                <li class="flex justify-between items-center">
+                  <span>contextual_relevancy</span>
+                  <span class="text-emerald-600 font-bold">Higher ↑</span>
+                </li>
+                <li class="flex justify-between items-center">
+                  <span>faithfulness</span>
+                  <span class="text-emerald-600 font-bold">Higher ↑</span>
+                </li>
+                <li class="flex justify-between items-center">
+                  <span>answer_relevancy</span>
+                  <span class="text-emerald-600 font-bold">Higher ↑</span>
+                </li>
               </ul>
             </div>
           </div>
@@ -594,12 +877,12 @@
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="font-bold text-xs text-slate-800">4. Application Quality</span>
-                <span class="text-[10px] text-slate-500">3 Metrics</span>
+                <span class="text-[10px] text-slate-500">2 Based • 1 Free</span>
               </div>
-              <ul class="text-xs space-y-1 font-mono text-slate-700">
-                <li class="flex justify-between"><span>correctness_[geval]</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>completeness_[geval]</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>style_[geval]</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              <ul class="text-xs space-y-1.5 font-mono text-slate-700">
+                <li class="flex justify-between items-center"><span>correctness_[geval]</span> <span class="ref-badge-based text-[9px] px-1 rounded">🎯 Based</span></li>
+                <li class="flex justify-between items-center"><span>completeness_[geval]</span> <span class="ref-badge-based text-[9px] px-1 rounded">🎯 Based</span></li>
+                <li class="flex justify-between items-center"><span>style_[geval]</span> <span class="ref-badge-free text-[9px] px-1 rounded">⚡ Free</span></li>
               </ul>
             </div>
 
@@ -607,13 +890,13 @@
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="font-bold text-xs text-slate-800">5. Safety Guardrails</span>
-                <span class="text-[10px] text-slate-500">4 Metrics</span>
+                <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded">⚡ All 4 Reference-Free</span>
               </div>
-              <ul class="text-xs space-y-1 font-mono text-slate-700">
-                <li class="flex justify-between"><span>safety.scope</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>leakage.protected</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>leakage.pii</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
-                <li class="flex justify-between"><span>toxicity</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
+              <ul class="text-xs space-y-1.5 font-mono text-slate-700">
+                <li class="flex justify-between items-center"><span>safety.scope</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between items-center"><span>leakage.protected</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between items-center"><span>leakage.pii</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+                <li class="flex justify-between items-center"><span>toxicity</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
               </ul>
             </div>
 
@@ -621,13 +904,13 @@
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
               <div class="flex justify-between items-center">
                 <span class="font-bold text-xs text-slate-800">6. Operations</span>
-                <span class="text-[10px] text-slate-500">7 Metrics</span>
+                <span class="ref-badge-free text-[10px] font-semibold px-2 py-0.5 rounded">⚡ All 7 Reference-Free</span>
               </div>
-              <ul class="text-xs space-y-1 font-mono text-slate-700">
-                <li class="flex justify-between"><span>latency.e2e_p95_ms</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
-                <li class="flex justify-between"><span>latency.slo_e2e_pass</span> <span class="text-purple-600 font-bold">Boolean</span></li>
-                <li class="flex justify-between"><span>cost_per_query_usd</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
-                <li class="flex justify-between"><span>reliability.success_rate</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
+              <ul class="text-xs space-y-1.5 font-mono text-slate-700">
+                <li class="flex justify-between items-center"><span>latency.e2e_p95_ms</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
+                <li class="flex justify-between items-center"><span>latency.slo_e2e_pass</span> <span class="text-purple-600 font-bold">Boolean</span></li>
+                <li class="flex justify-between items-center"><span>cost_per_query_usd</span> <span class="text-blue-600 font-bold">Lower ↓</span></li>
+                <li class="flex justify-between items-center"><span>reliability.success_rate</span> <span class="text-emerald-600 font-bold">Higher ↑</span></li>
               </ul>
             </div>
           </div>
@@ -643,9 +926,9 @@
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-200 pb-4">
         <div>
           <h2 class="text-lg font-bold text-slate-900">Generic Metric Specification Matrix (21 Metrics)</h2>
-          <p class="text-xs text-slate-500">Complete catalog of evaluation types, optimal directions, valid mathematical ranges, and targets.</p>
+          <p class="text-xs text-slate-500">Complete catalog of evaluation types, reference classification, mathematical formulations, and objectives.</p>
         </div>
-        <input type="text" id="filter-search" onkeyup="searchSpecs()" placeholder="Search metric key..." class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <input type="text" id="filter-search" onkeyup="searchSpecs()" placeholder="Search metric key, formula, or type..." class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-indigo-500">
       </div>
 
       <div class="overflow-x-auto">
@@ -653,11 +936,13 @@
           <thead>
             <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
               <th class="p-3">#</th>
-              <th class="p-3">Evaluation Level</th>
+              <th class="p-3">Level</th>
               <th class="p-3">Evaluation Type</th>
               <th class="p-3">Metric Key</th>
-              <th class="p-3">Optimal Direction</th>
-              <th class="p-3">Expected Range</th>
+              <th class="p-3">Reference Paradigm</th>
+              <th class="p-3">Formula / Core Definition</th>
+              <th class="p-3">Direction</th>
+              <th class="p-3">Range</th>
               <th class="p-3">Target Objective</th>
             </tr>
           </thead>
@@ -668,6 +953,8 @@
               <td class="p-3 font-semibold text-emerald-700">Component</td>
               <td class="p-3 font-semibold text-amber-800">1. Retriever</td>
               <td class="p-3 font-mono font-bold text-slate-900">retriever.contextual_recall.avg_score</td>
+              <td class="p-3"><span class="ref-badge-based px-2 py-0.5 rounded font-semibold text-[10px]">🎯 Reference-Based</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{|\text{Attributed GT Sentences}|}{|\text{Total GT Sentences}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Maximize context coverage of ground-truth facts</td>
@@ -677,6 +964,8 @@
               <td class="p-3 font-semibold text-emerald-700">Component</td>
               <td class="p-3 font-semibold text-amber-800">1. Retriever</td>
               <td class="p-3 font-mono font-bold text-slate-900">retriever.contextual_precision.avg_score</td>
+              <td class="p-3"><span class="ref-badge-based px-2 py-0.5 rounded font-semibold text-[10px]">🎯 Reference-Based</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{\sum (\text{Precision@}k \times v_k)}{\text{Total Relevant Chunks}}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Rank relevant chunks at top positions</td>
@@ -688,6 +977,8 @@
               <td class="p-3 font-semibold text-emerald-700">Component</td>
               <td class="p-3 font-semibold text-amber-800">2. Generator</td>
               <td class="p-3 font-mono font-bold text-slate-900">generator.faithfulness.avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{|\text{Truthful Claims in Context}|}{|\text{Total Claims Extracted}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Eliminate hallucination; ground all claims</td>
@@ -697,6 +988,8 @@
               <td class="p-3 font-semibold text-emerald-700">Component</td>
               <td class="p-3 font-semibold text-amber-800">2. Generator</td>
               <td class="p-3 font-mono font-bold text-slate-900">generator.answer_relevancy.avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{1}{N}\sum \cos(\mathbf{e}_{\text{gen\_query}}, \mathbf{e}_{\text{query}})\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Directly resolve user prompt without fluff</td>
@@ -708,6 +1001,8 @@
               <td class="p-3 font-semibold text-blue-700">Pipeline</td>
               <td class="p-3 font-semibold text-blue-800">3. RAG Triad</td>
               <td class="p-3 font-mono font-bold text-slate-900">pipeline.contextual_relevancy.avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{|\text{Relevant Context Sentences}|}{|\text{Total Retrieved Sentences}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Minimize context noise; retrieve relevant chunks only</td>
@@ -717,6 +1012,8 @@
               <td class="p-3 font-semibold text-blue-700">Pipeline</td>
               <td class="p-3 font-semibold text-blue-800">3. RAG Triad</td>
               <td class="p-3 font-mono font-bold text-slate-900">pipeline.faithfulness.avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{|\text{Grounded Statements}|}{|\text{Total Assertions in Output}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">End-to-end response strictly grounded in context</td>
@@ -726,6 +1023,8 @@
               <td class="p-3 font-semibold text-blue-700">Pipeline</td>
               <td class="p-3 font-semibold text-blue-800">3. RAG Triad</td>
               <td class="p-3 font-mono font-bold text-slate-900">pipeline.answer_relevancy.avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{|\text{Relevant Claims Addressing Query}|}{|\text{Total Claims in Answer}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">End-to-end response semantically matches user intent</td>
@@ -737,6 +1036,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">4. Application Quality</td>
               <td class="p-3 font-mono font-bold text-slate-900">application.correctness_[geval].avg_score</td>
+              <td class="p-3"><span class="ref-badge-based px-2 py-0.5 rounded font-semibold text-[10px]">🎯 Reference-Based</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\sum (w_i \times s_i)\) vs Expected Output</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Factual and logical correctness (LLM-as-a-judge)</td>
@@ -746,6 +1047,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">4. Application Quality</td>
               <td class="p-3 font-mono font-bold text-slate-900">application.completeness_[geval].avg_score</td>
+              <td class="p-3"><span class="ref-badge-based px-2 py-0.5 rounded font-semibold text-[10px]">🎯 Reference-Based</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{|\text{Addressed Sub-Questions}|}{|\text{Required Sub-Questions}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Comprehensive coverage of all question sub-components</td>
@@ -755,6 +1058,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">4. Application Quality</td>
               <td class="p-3 font-mono font-bold text-slate-900">application.style_[geval].avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">Rubric Criteria Score / Max Rubric Points</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Tone, clarity, format, and structure adherence</td>
@@ -766,6 +1071,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">5. Safety</td>
               <td class="p-3 font-mono font-bold text-slate-900">safety.scope.avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{|\text{Valid Answers} + \text{Valid Declines}|}{|\text{Total Requests}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Domain boundary enforcement; refuse out-of-scope tasks</td>
@@ -775,6 +1082,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">5. Safety</td>
               <td class="p-3 font-mono font-bold text-slate-900">safety.leakage.protected_avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(1.0 - \frac{|\text{Prompt Leaks}|}{|\text{Adversarial Injections}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Prevent system prompt / proprietary knowledge extraction</td>
@@ -784,6 +1093,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">5. Safety</td>
               <td class="p-3 font-mono font-bold text-slate-900">safety.leakage.pii_avg_score</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(1.0 - \frac{|\text{PII Leaks}|}{|\text{Total Outputs}|}\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Zero sensitive personally identifiable data leaks</td>
@@ -793,6 +1104,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">5. Safety</td>
               <td class="p-3 font-mono font-bold text-slate-900">safety.toxicity.avg_toxicity</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\max_{s} P(\text{Toxic} \mid s)\)</td>
               <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
               <td class="p-3 font-mono">[0.0, 1.0]</td>
               <td class="p-3 text-slate-600">Strict zero-toxicity target (0.0)</td>
@@ -804,6 +1117,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">6. Operations</td>
               <td class="p-3 font-mono font-bold text-slate-900">ops.latency.e2e_p95_ms</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(L_{(\lceil 0.95 \times N \rceil)}\) ms</td>
               <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
               <td class="p-3 font-mono">[0 ms, ∞)</td>
               <td class="p-3 text-slate-600">Minimize 95th percentile end-to-end latency</td>
@@ -813,6 +1128,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">6. Operations</td>
               <td class="p-3 font-mono font-bold text-slate-900">ops.latency.slo_e2e_pass</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\mathbb{I}(P_{95} \le \text{Threshold})\)</td>
               <td class="p-3"><span class="dir-bool px-2 py-0.5 rounded font-semibold text-[11px]">Boolean</span></td>
               <td class="p-3 font-mono">{true, false}</td>
               <td class="p-3 text-slate-600">Must pass end-to-end latency SLA</td>
@@ -822,6 +1139,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">6. Operations</td>
               <td class="p-3 font-mono font-bold text-slate-900">ops.latency.slo_ttft_pass</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\mathbb{I}(\text{TTFT}_{p95} \le \text{Limit})\)</td>
               <td class="p-3"><span class="dir-bool px-2 py-0.5 rounded font-semibold text-[11px]">Boolean</span></td>
               <td class="p-3 font-mono">{true, false}</td>
               <td class="p-3 text-slate-600">Must pass Time-To-First-Token streaming target</td>
@@ -831,6 +1150,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">6. Operations</td>
               <td class="p-3 font-mono font-bold text-slate-900">ops.cost.cost_per_query_usd</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\((N_{\text{in}}P_{\text{in}} + N_{\text{out}}P_{\text{out}})\)</td>
               <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
               <td class="p-3 font-mono">[$0.00, ∞)</td>
               <td class="p-3 text-slate-600">Minimize model inference & retrieval compute cost</td>
@@ -840,6 +1161,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">6. Operations</td>
               <td class="p-3 font-mono font-bold text-slate-900">ops.cost.budget_pass</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\mathbb{I}(\sum \text{Cost} \le \text{Budget})\)</td>
               <td class="p-3"><span class="dir-bool px-2 py-0.5 rounded font-semibold text-[11px]">Boolean</span></td>
               <td class="p-3 font-mono">{true, false}</td>
               <td class="p-3 text-slate-600">Must operate within pre-allocated budget cap</td>
@@ -849,6 +1172,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">6. Operations</td>
               <td class="p-3 font-mono font-bold text-slate-900">ops.reliability.success_rate</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{N_{\text{success}}}{N_{\text{total}}} \times 100\%\)</td>
               <td class="p-3"><span class="dir-higher px-2 py-0.5 rounded font-semibold text-[11px]">Higher ↑</span></td>
               <td class="p-3 font-mono">[0.0%, 100.0%]</td>
               <td class="p-3 text-slate-600">Target high availability (99.9%+)</td>
@@ -858,6 +1183,8 @@
               <td class="p-3 font-semibold text-purple-700">Application</td>
               <td class="p-3 font-semibold text-purple-800">6. Operations</td>
               <td class="p-3 font-mono font-bold text-slate-900">ops.reliability.error_rate</td>
+              <td class="p-3"><span class="ref-badge-free px-2 py-0.5 rounded font-semibold text-[10px]">⚡ Reference-Free</span></td>
+              <td class="p-3 font-mono text-[11px] text-slate-800">\(\frac{N_{\text{errors}}}{N_{\text{total}}} \times 100\%\)</td>
               <td class="p-3"><span class="dir-lower px-2 py-0.5 rounded font-semibold text-[11px]">Lower ↓</span></td>
               <td class="p-3 font-mono">[0.0%, 100.0%]</td>
               <td class="p-3 text-slate-600">Target zero unhandled errors or pipeline timeouts</td>
@@ -870,6 +1197,9 @@
   </div>
 
   <script>
+    let currentDirFilter = 'all';
+    let currentRefFilter = 'all';
+
     function switchView(viewName) {
       document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
       document.getElementById('view-' + viewName).classList.remove('hidden');
@@ -887,17 +1217,34 @@
           tabs[k].className = "px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition";
         }
       });
+      triggerMathRender();
     }
 
     function filterDirection(dir) {
+      currentDirFilter = dir;
       document.querySelectorAll('.dir-btn').forEach(b => {
-        b.className = "dir-btn px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium";
+        b.className = "dir-btn px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium";
       });
-      event.target.className = "dir-btn active px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium";
+      event.target.className = "dir-btn active px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium";
+      applyFilters();
+    }
 
+    function filterRefType(ref) {
+      currentRefFilter = ref;
+      document.querySelectorAll('.ref-btn').forEach(b => {
+        b.className = "ref-btn px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium";
+      });
+      event.target.className = "ref-btn active px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-medium";
+      applyFilters();
+    }
+
+    function applyFilters() {
       const items = document.querySelectorAll('.metric-item');
       items.forEach(item => {
-        if (dir === 'all' || item.dataset.dir === dir) {
+        const matchesDir = (currentDirFilter === 'all' || item.dataset.dir === currentDirFilter);
+        const matchesRef = (currentRefFilter === 'all' || item.dataset.ref === currentRefFilter);
+
+        if (matchesDir && matchesRef) {
           item.style.display = '';
         } else {
           item.style.display = 'none';
@@ -912,19 +1259,30 @@
       const tr = table.getElementsByTagName("tr");
 
       for (let i = 1; i < tr.length; i++) {
-        const tdKey = tr[i].getElementsByTagName("td")[3];
-        const tdType = tr[i].getElementsByTagName("td")[2];
-        if (tdKey || tdType) {
-          const txtKey = tdKey ? (tdKey.textContent || tdKey.innerText) : "";
-          const txtType = tdType ? (tdType.textContent || tdType.innerText) : "";
-          if (txtKey.toUpperCase().indexOf(filter) > -1 || txtType.toUpperCase().indexOf(filter) > -1) {
-            tr[i].style.display = "";
-          } else {
-            tr[i].style.display = "none";
-          }
+        const text = tr[i].innerText || tr[i].textContent;
+        if (text.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
         }       
       }
     }
+
+    function triggerMathRender() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      triggerMathRender();
+    });
   </script>
 </body>
 </html>
